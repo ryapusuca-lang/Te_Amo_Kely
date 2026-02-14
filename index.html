@@ -1,0 +1,145 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Galaxy of Love</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet" />
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{overflow:hidden;height:100%;background:#000;font-family:Georgia,serif;}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;}
+.instructions{
+position:fixed;top:20px;left:50%;transform:translateX(-50%);
+color:white;font-size:16px;z-index:10;
+}
+.credits{
+position:fixed;bottom:15px;left:50%;transform:translateX(-50%);
+color:white;font-family:'Pacifico',cursive;font-size:18px;z-index:10;
+}
+</style>
+</head>
+
+<body>
+<canvas class="webgl"></canvas>
+
+<div class="instructions">Te amo muuuucho Wiwi</div>
+<div class="credits">Andree</div>
+
+<script type="module">
+import * as THREE from "https://cdn.skypack.dev/three@0.132.2";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.132.2/examples/jsm/controls/OrbitControls.js";
+
+const canvas=document.querySelector("canvas");
+const scene=new THREE.Scene();
+
+const romanticPhrases=[
+"Te amo","Mi amor","Mi reina","Kely","Eres todo",
+"Para siempre","Mi vida","Mi cielo","Mi sol","Bella",
+"Hermosa","Preciosa","Dulzura","Cariño","Amor mío",
+"Mi princesa","Mi ángel","Mi estrella","Mi mundo","Eres única"
+];
+
+const parameters={
+heartCount:16,
+particlesPerHeart:800,
+heartSize:1,
+insideColor:"#ff0055",
+outsideColor:"#ff3088",
+centerHeartSize:3,
+centerHeartParticles:2000
+};
+
+let hearts=[];
+let texts=[];
+
+function createHeartGeometry(size,count){
+const positions=new Float32Array(count*3);
+for(let i=0;i<count;i++){
+const t=Math.random()*Math.PI*2;
+const x=16*Math.pow(Math.sin(t),3);
+const y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+const z=(Math.random()-0.5)*3;
+positions[i*3]=x*size*0.04;
+positions[i*3+1]=y*size*0.04;
+positions[i*3+2]=z*size*0.04;
+}
+const geo=new THREE.BufferGeometry();
+geo.setAttribute("position",new THREE.BufferAttribute(positions,3));
+return geo;
+}
+
+function createTextSprite(text){
+const canvas=document.createElement("canvas");
+const ctx=canvas.getContext("2d");
+canvas.width=256;canvas.height=64;
+ctx.font="Bold 32px Pacifico";
+ctx.textAlign="center";
+ctx.textBaseline="middle";
+ctx.fillStyle="#ff99cc";
+ctx.shadowColor="#fff";
+ctx.shadowBlur=15;
+ctx.fillText(text,128,32);
+const texture=new THREE.CanvasTexture(canvas);
+const material=new THREE.SpriteMaterial({map:texture,transparent:true});
+const sprite=new THREE.Sprite(material);
+sprite.scale.set(1,0.3,1);
+return sprite;
+}
+
+for(let i=0;i<parameters.heartCount;i++){
+const geo=createHeartGeometry(parameters.heartSize,parameters.particlesPerHeart);
+const mat=new THREE.PointsMaterial({color:"#ff55aa",size:0.03});
+const heart=new THREE.Points(geo,mat);
+const angle=i/parameters.heartCount*Math.PI*2;
+heart.position.set(Math.cos(angle)*4,0,Math.sin(angle)*4);
+scene.add(heart);
+hearts.push(heart);
+
+const text=createTextSprite("💖Mi Niña💖");
+text.position.copy(heart.position);
+scene.add(text);
+texts.push(text);
+}
+
+const centerGeo=createHeartGeometry(parameters.centerHeartSize,parameters.centerHeartParticles);
+const centerMat=new THREE.PointsMaterial({color:"#ffffff",size:0.04});
+const centerHeart=new THREE.Points(centerGeo,centerMat);
+scene.add(centerHeart);
+
+const centerText=createTextSprite("👑Kely👑");
+centerText.position.set(0,0.5,0);
+scene.add(centerText);
+
+const sizes={width:window.innerWidth,height:window.innerHeight};
+const camera=new THREE.PerspectiveCamera(75,sizes.width/sizes.height,0.1,100);
+camera.position.set(8,5,8);
+scene.add(camera);
+
+const controls=new OrbitControls(camera,canvas);
+controls.enableDamping=true;
+controls.autoRotate=true;
+controls.autoRotateSpeed=0.4;
+
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+renderer.setSize(sizes.width,sizes.height);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+
+function animate(){
+controls.update();
+renderer.render(scene,camera);
+requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+<audio id="bg-music" loop>
+<source src="https://github.com/Gon-p/G-/raw/refs/heads/main/adore%20-%20_did%20i%20tell%20u%20that%20i%20miss%20u_%20(lyric%20video).m4a" type="audio/mpeg">
+</audio>
+
+<script>
+const audio=document.getElementById("bg-music");
+document.addEventListener("click",()=>{audio.play();},{once:true});
+</script>
+
+</body>
+</html>
